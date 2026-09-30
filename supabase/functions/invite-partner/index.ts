@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.117.2";
+import { createSupabaseContext } from "npm:@supabase/server@^1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -25,34 +25,25 @@ Deno.serve(async (request) => {
   }
 
   try {
-    const authorization = request.headers.get("Authorization") || "";
-    const token = authorization.replace(/^Bearer\s+/i, "");
-    if (!token) {
-      return jsonResponse({ error: "Sessão em falta." }, 401);
-    }
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (!supabaseUrl || !serviceRoleKey) {
-      return jsonResponse({ error: "Configuração do servidor incompleta." }, 500);
-    }
-
-    const adminClient = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
+    const { data: context, error: authError } = await createSupabaseContext(request, {
+      auth: "user",
     });
-
-    const { data: userData, error: userError } = await adminClient.auth.getUser(token);
-    if (userError || !userData.user) {
-      return jsonResponse({ error: "Sessão inválida." }, 401);
+    const userId = context?.userClaims?.id;
+    if (authError || !context || !userId) {
+      return jsonResponse({ error: "Sessão inválida." }, authError?.status || 401);
     }
 
-    const { data: callerProfile, error: profileError } = await adminClient
+    const { data: callerProfile, error: profileError } = await context.supabase
       .from("partner_profiles")
       .select("role")
-      .eq("user_id", userData.user.id)
+      .eq("user_id", userId)
       .single();
 
-    if (profileError || callerProfile?.role !== "admin") {
+    if (profileError) {
+      console.error("Unable to load caller profile", profileError);
+      return jsonResponse({ error: "Não foi possível validar o perfil administrativo." }, 500);
+    }
+    if (callerProfile?.role !== "admin") {
       return jsonResponse({ error: "Admin access required." }, 403);
     }
 
@@ -68,7 +59,7 @@ Deno.serve(async (request) => {
       return jsonResponse({ error: "Perfil de parceiro inválido." }, 400);
     }
 
-    const { data: invitation, error: invitationError } = await adminClient.auth.admin.inviteUserByEmail(email, {
+    const { data: invitation, error: invitationError } = await context.supabaseAdmin.auth.admin.inviteUserByEmail(email, {
       data: {
         full_name: fullName || email.split("@")[0],
         invited_role: role,
@@ -83,7 +74,7 @@ Deno.serve(async (request) => {
     const profileUpdates: Record<string, string> = { role };
     if (fullName) profileUpdates.full_name = fullName;
 
-    const { error: updateError } = await adminClient
+    const { error: updateError } = await context.supabaseAdmin
       .from("partner_profiles")
       .update(profileUpdates)
       .eq("user_id", invitation.user.id);
