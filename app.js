@@ -182,6 +182,8 @@ const toast = document.querySelector("#toast");
 const appShell = document.querySelector("#appShell");
 const authScreen = document.querySelector("#authScreen");
 const authMessage = document.querySelector("#authMessage");
+const loginForm = document.querySelector("#loginForm");
+const invitePasswordForm = document.querySelector("#invitePasswordForm");
 const accountControl = document.querySelector("#accountControl");
 
 function icon(name) {
@@ -793,39 +795,75 @@ function renderAdminPartners() {
   const rows = filteredAdminPartners();
   const roleFilters = ["Todos", "referenciador", "consultor", "leader", "admin"];
   return `
-    <section class="table-card admin-table">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">Rede completa</span>
-          <h2>Parceiros e desempenho</h2>
-          <p>Consulta perfis, responsáveis, produção e comissão própria estimada.</p>
+    <div class="stack">
+      <section class="form-card admin-invite-card">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Novo acesso</span>
+            <h2>Convidar parceiro</h2>
+            <p>O parceiro recebe um link seguro por email e cria a própria palavra-passe.</p>
+          </div>
+          <span class="role-pill">Só Admin</span>
         </div>
-        <span class="role-pill">${rows.length} resultados</span>
-      </div>
-      <div class="filter-bar">
-        ${roleFilters.map((role) => `<button class="chip ${state.adminRoleFilter === role ? "active" : ""}" type="button" data-admin-role-filter="${role}">${role === "Todos" ? role : roleLabel(role)}</button>`).join("")}
-      </div>
-      <input class="search-input" id="adminSearch" value="${escapeAttribute(state.adminSearch)}" placeholder="Pesquisar por nome, email, região ou Leader" aria-label="Pesquisar parceiros">
-      <div class="table-wrap">
-        ${rows.length ? `
-          <table>
-            <thead><tr><th>Parceiro</th><th>Perfil</th><th>Leader</th><th>Referências</th><th>Vendas</th><th>Conversão</th><th>Comissão própria</th><th>Atividade</th></tr></thead>
-            <tbody>${rows.map((partner) => `
-              <tr>
-                <td><strong>${escapeHtml(partner.name)}</strong><span class="cell-subtitle">${escapeHtml(partner.email)}</span></td>
-                <td><span class="role-pill">${roleLabel(partner.role)}</span></td>
-                <td>${escapeHtml(partner.leaderName || "-")}</td>
-                <td>${partner.references}</td>
-                <td><strong>${partner.sales}</strong></td>
-                <td>${partner.conversion}%</td>
-                <td><strong>${money.format(partner.commission)}</strong></td>
-                <td>${partner.lastActivity ? formatDate(partner.lastActivity) : "-"}</td>
-              </tr>
-            `).join("")}</tbody>
-          </table>
-        ` : renderAdminEmpty("Nenhum parceiro corresponde aos filtros.")}
-      </div>
-    </section>
+        <form class="invite-partner-form" id="invitePartnerForm">
+          <div class="invite-form-grid">
+            <div class="field">
+              <label for="inviteEmail">Email</label>
+              <input id="inviteEmail" name="email" type="email" autocomplete="off" required placeholder="parceiro@empresa.pt">
+            </div>
+            <div class="field">
+              <label for="inviteFullName">Nome <small>(opcional)</small></label>
+              <input id="inviteFullName" name="fullName" type="text" autocomplete="off" maxlength="120" placeholder="Nome do parceiro">
+            </div>
+            <div class="field">
+              <label for="inviteRole">Perfil</label>
+              <select id="inviteRole" name="role" required>
+                <option value="referenciador">Referenciador · 10 €</option>
+                <option value="consultor">Consultor · 25 €</option>
+                <option value="leader">Leader · 25 € + 5 € equipa</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="primary-button" type="submit">${icon("plus")}Enviar convite</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="table-card admin-table">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Rede completa</span>
+            <h2>Parceiros e desempenho</h2>
+            <p>Consulta perfis, responsáveis, produção e comissão própria estimada.</p>
+          </div>
+          <span class="role-pill">${rows.length} resultados</span>
+        </div>
+        <div class="filter-bar">
+          ${roleFilters.map((role) => `<button class="chip ${state.adminRoleFilter === role ? "active" : ""}" type="button" data-admin-role-filter="${role}">${role === "Todos" ? role : roleLabel(role)}</button>`).join("")}
+        </div>
+        <input class="search-input" id="adminSearch" value="${escapeAttribute(state.adminSearch)}" placeholder="Pesquisar por nome, email, região ou Leader" aria-label="Pesquisar parceiros">
+        <div class="table-wrap">
+          ${rows.length ? `
+            <table>
+              <thead><tr><th>Parceiro</th><th>Perfil</th><th>Leader</th><th>Referências</th><th>Vendas</th><th>Conversão</th><th>Comissão própria</th><th>Atividade</th></tr></thead>
+              <tbody>${rows.map((partner) => `
+                <tr>
+                  <td><strong>${escapeHtml(partner.name)}</strong><span class="cell-subtitle">${escapeHtml(partner.email)}</span></td>
+                  <td><span class="role-pill">${roleLabel(partner.role)}</span></td>
+                  <td>${escapeHtml(partner.leaderName || "-")}</td>
+                  <td>${partner.references}</td>
+                  <td><strong>${partner.sales}</strong></td>
+                  <td>${partner.conversion}%</td>
+                  <td><strong>${money.format(partner.commission)}</strong></td>
+                  <td>${partner.lastActivity ? formatDate(partner.lastActivity) : "-"}</td>
+                </tr>
+              `).join("")}</tbody>
+            </table>
+          ` : renderAdminEmpty("Nenhum parceiro corresponde aos filtros.")}
+        </div>
+      </section>
+    </div>
   `;
 }
 
@@ -1489,6 +1527,43 @@ function bindViewEvents() {
       }
     });
   }
+
+  const invitePartnerForm = document.querySelector("#invitePartnerForm");
+  if (invitePartnerForm) {
+    invitePartnerForm.addEventListener("submit", handlePartnerInvite);
+  }
+}
+
+async function handlePartnerInvite(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector('[type="submit"]');
+  const formData = new FormData(form);
+
+  if (state.mode !== "cloud" || state.profile !== "admin") {
+    showToast("Os convites só estão disponíveis na conta Admin autenticada.");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "A enviar...";
+
+  try {
+    const invitation = await window.partnerBackend.invitePartner({
+      email: String(formData.get("email") || "").trim(),
+      fullName: String(formData.get("fullName") || "").trim(),
+      role: String(formData.get("role") || "referenciador")
+    });
+    const adminData = await window.partnerBackend.loadAdminData();
+    state.adminPartners = adminData.partners;
+    state.adminReferences = adminData.references;
+    render();
+    showToast(`Convite enviado para ${invitation.email}.`);
+  } catch (error) {
+    showToast(friendlyError(error));
+    button.disabled = false;
+    button.innerHTML = `${icon("plus")}Enviar convite`;
+  }
 }
 
 async function handleReferenceSubmit(event) {
@@ -1575,6 +1650,9 @@ function friendlyError(error) {
     [/invalid login credentials/i, "Email ou palavra-passe incorretos."],
     [/email not confirmed/i, "Confirma primeiro o email recebido."],
     [/user already registered/i, "Já existe uma conta com este email."],
+    [/already.*registered|already.*exists/i, "Já existe uma conta ou convite para este email."],
+    [/not authorized|forbidden|admin access required/i, "Esta operação está disponível apenas para o Admin."],
+    [/invitation.*rate|rate limit/i, "Aguarda alguns minutos antes de enviar outro convite."],
     [/password should be at least/i, "A palavra-passe precisa de pelo menos 8 caracteres."],
     [/failed to fetch/i, "Não foi possível contactar o Supabase. Verifica a ligação à internet."]
   ];
@@ -1590,7 +1668,25 @@ function setAuthMessage(message, isError = false) {
 function showAuthScreen(message = "") {
   appShell.hidden = true;
   authScreen.hidden = false;
+  loginForm.hidden = false;
+  invitePasswordForm.hidden = true;
   setAuthMessage(message);
+}
+
+function showInvitePasswordScreen(session) {
+  state.session = session;
+  appShell.hidden = true;
+  authScreen.hidden = false;
+  loginForm.hidden = true;
+  invitePasswordForm.hidden = false;
+  setAuthMessage("O convite foi validado. Define agora a tua palavra-passe.");
+  document.querySelector("#invitePassword")?.focus();
+}
+
+function isInviteFlow() {
+  const query = new URLSearchParams(window.location.search);
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  return query.get("invite") === "1" || hash.get("type") === "invite";
 }
 
 function showApplication() {
@@ -1632,7 +1728,7 @@ async function enterCloudMode(session) {
 }
 
 function bindAuthEvents() {
-  document.querySelector("#loginForm").addEventListener("submit", async (event) => {
+  loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const button = event.currentTarget.querySelector('[type="submit"]');
     const formData = new FormData(event.currentTarget);
@@ -1651,6 +1747,38 @@ function bindAuthEvents() {
     } finally {
       button.disabled = false;
       button.textContent = "Entrar";
+    }
+  });
+
+  invitePasswordForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const button = event.currentTarget.querySelector('[type="submit"]');
+    const formData = new FormData(event.currentTarget);
+    const password = String(formData.get("password") || "");
+    const passwordConfirm = String(formData.get("passwordConfirm") || "");
+
+    if (password.length < 8) {
+      setAuthMessage("A palavra-passe precisa de pelo menos 8 caracteres.", true);
+      return;
+    }
+    if (password !== passwordConfirm) {
+      setAuthMessage("As palavras-passe não coincidem.", true);
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "A criar...";
+    setAuthMessage("");
+
+    try {
+      await window.partnerBackend.updatePassword(password);
+      window.history.replaceState(null, "", window.location.pathname);
+      await enterCloudMode(state.session);
+      showToast("Palavra-passe criada. A tua conta está pronta.");
+    } catch (error) {
+      setAuthMessage(friendlyError(error), true);
+      button.disabled = false;
+      button.textContent = "Criar palavra-passe";
     }
   });
 }
@@ -1689,9 +1817,13 @@ async function bootstrap() {
   try {
     const session = await window.partnerBackend.init();
     if (session) {
-      await enterCloudMode(session);
+      if (isInviteFlow()) {
+        showInvitePasswordScreen(session);
+      } else {
+        await enterCloudMode(session);
+      }
     } else {
-      showAuthScreen();
+      showAuthScreen(isInviteFlow() ? "O convite expirou ou já foi utilizado. Pede ao Admin um novo convite." : "");
     }
   } catch (error) {
     showAuthScreen();

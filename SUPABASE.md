@@ -9,6 +9,12 @@
 
 Nunca coloques a chave `service_role` no browser. A aplicação usa apenas a chave pública e as regras RLS de `schema.sql` para manter os dados separados por conta.
 
-O registo público está desativado. As contas devem ser criadas por um administrador em **Authentication > Users**; o perfil de parceiro é criado automaticamente como **Referenciador**. A promoção para Consultor, Leader ou Admin deve ser feita por um administrador na tabela `partner_profiles`. Para associar um parceiro a um Leader, preenche `leader_id` com o `user_id` do Leader.
+O registo público está desativado. O Admin pode criar acessos em **Parceiros > Convidar parceiro**. O destinatário recebe um link do Supabase, regressa à aplicação e define a própria palavra-passe. A operação usa a Edge Function `invite-partner`, que confirma o perfil Admin antes de chamar a API administrativa; a chave privada nunca é enviada para o browser.
+
+O código da função está em `supabase/functions/invite-partner/index.ts`. O URL oficial configurado em **Authentication > URL Configuration** é `https://goncaloribeiro11.github.io/projeto-mais-valor/`, com `https://goncaloribeiro11.github.io/projeto-mais-valor/**` na lista de redirecionamentos permitidos.
+
+O serviço de email incluído no Supabase é adequado para testes e tem limites reduzidos. Para utilização regular, configura um SMTP próprio em **Authentication > Emails > SMTP Settings**.
+
+Para associar um parceiro a um Leader, preenche `leader_id` com o `user_id` do Leader.
 
 Para ativar o painel global, executa `supabase/admin-panel.sql` e altera o campo `role` da conta responsável para `admin`. Essa conta passa a ter acesso de leitura aos resumos globais de parceiros, referências, vendas e comissões através de funções protegidas no servidor.

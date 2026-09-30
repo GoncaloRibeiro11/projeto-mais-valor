@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Projeto Mais Valor</title>
-    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="styles.css?v=5">
   </head>
   <body>
     <svg class="icon-sprite" aria-hidden="true">
@@ -97,6 +97,23 @@
             <button class="primary-button auth-submit" type="submit">Entrar</button>
           </form>
 
+          <form class="auth-form" id="invitePasswordForm" hidden>
+            <div>
+              <span class="eyebrow">Convite aceite</span>
+              <h2>Cria a tua palavra-passe</h2>
+              <p>Escolhe uma palavra-passe só tua para concluir o acesso à plataforma.</p>
+            </div>
+            <div class="field">
+              <label for="invitePassword">Nova palavra-passe</label>
+              <input id="invitePassword" name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="Mínimo de 8 caracteres">
+            </div>
+            <div class="field">
+              <label for="invitePasswordConfirm">Confirmar palavra-passe</label>
+              <input id="invitePasswordConfirm" name="passwordConfirm" type="password" autocomplete="new-password" required minlength="8" placeholder="Repete a palavra-passe">
+            </div>
+            <button class="primary-button auth-submit" type="submit">Criar palavra-passe</button>
+          </form>
+
           <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
         </div>
       </div>
@@ -183,6 +200,6 @@
     <script src="assets/supabase-2.117.2.js"></script>
     <script src="supabase-config.js"></script>
     <script src="supabase-backend.js"></script>
-    <script src="app.js?v=4"></script>
+    <script src="app.js?v=5"></script>
   </body>
 </html>

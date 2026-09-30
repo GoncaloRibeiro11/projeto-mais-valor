@@ -69,6 +69,33 @@
     throwIfError(error);
   }
 
+  async function updatePassword(password) {
+    const { data, error } = await getClient().auth.updateUser({ password });
+    throwIfError(error);
+    return data.user;
+  }
+
+  async function invitePartner(invitation) {
+    const { data, error } = await getClient().functions.invoke("invite-partner", {
+      body: invitation
+    });
+
+    if (error) {
+      let message = error.message;
+      if (error.context instanceof Response) {
+        try {
+          const payload = await error.context.clone().json();
+          message = payload.error || payload.message || message;
+        } catch {
+          // Keep the original function error when the response is not JSON.
+        }
+      }
+      throw new Error(message);
+    }
+
+    return data;
+  }
+
   async function loadAccount() {
     const supabaseClient = getClient();
     const { data: userData, error: userError } = await supabaseClient.auth.getUser();
@@ -183,6 +210,8 @@
     init,
     signIn,
     signOut,
+    updatePassword,
+    invitePartner,
     loadAccount,
     loadReferences,
     createReference,

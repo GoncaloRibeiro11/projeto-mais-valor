@@ -1044,6 +1044,26 @@ tr:last-child td {
   margin-top: 16px;
 }
 
+.admin-invite-card {
+  border-left: 4px solid var(--primary);
+}
+
+.invite-partner-form {
+  margin-top: 20px;
+}
+
+.invite-form-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.2fr) minmax(200px, 1fr) minmax(190px, 0.8fr);
+  gap: 14px;
+  align-items: end;
+}
+
+.invite-form-grid small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
 .profile-grid,
 .module-grid,
 .material-grid,
@@ -1300,6 +1320,7 @@ tr:last-child td {
   .hero-panel,
   .split,
   .form-grid,
+  .invite-form-grid,
   .profile-grid,
   .module-grid,
   .material-grid,
