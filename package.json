@@ -1,0 +1,13 @@
+{
+  "name": "projeto-mais-valor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plataforma Projeto Mais Valor para a rede de parceiros de Telecomunicacoes e Energia.",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check app.js && node --check supabase-config.js && node --check supabase-backend.js && node --check server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.2"
+  }
+}

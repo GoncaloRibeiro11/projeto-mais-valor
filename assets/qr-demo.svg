@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220" role="img" aria-labelledby="title desc">
+  <title id="title">QR code demo</title>
+  <desc id="desc">Codigo QR ilustrativo para o link pessoal do parceiro.</desc>
+  <rect width="220" height="220" rx="18" fill="#ffffff"/>
+  <rect x="16" y="16" width="52" height="52" rx="8" fill="#10231f"/>
+  <rect x="28" y="28" width="28" height="28" rx="4" fill="#ffffff"/>
+  <rect x="35" y="35" width="14" height="14" rx="2" fill="#10231f"/>
+  <rect x="152" y="16" width="52" height="52" rx="8" fill="#10231f"/>
+  <rect x="164" y="28" width="28" height="28" rx="4" fill="#ffffff"/>
+  <rect x="171" y="35" width="14" height="14" rx="2" fill="#10231f"/>
+  <rect x="16" y="152" width="52" height="52" rx="8" fill="#10231f"/>
+  <rect x="28" y="164" width="28" height="28" rx="4" fill="#ffffff"/>
+  <rect x="35" y="171" width="14" height="14" rx="2" fill="#10231f"/>
+  <g fill="#10231f">
+    <rect x="84" y="20" width="12" height="12" rx="3"/>
+    <rect x="104" y="20" width="28" height="12" rx="3"/>
+    <rect x="84" y="44" width="32" height="12" rx="3"/>
+    <rect x="128" y="44" width="12" height="12" rx="3"/>
+    <rect x="84" y="76" width="12" height="28" rx="3"/>
+    <rect x="108" y="76" width="12" height="12" rx="3"/>
+    <rect x="132" y="76" width="28" height="12" rx="3"/>
+    <rect x="172" y="84" width="32" height="12" rx="3"/>
+    <rect x="20" y="84" width="20" height="12" rx="3"/>
+    <rect x="52" y="84" width="44" height="12" rx="3"/>
+    <rect x="108" y="100" width="28" height="12" rx="3"/>
+    <rect x="152" y="104" width="12" height="36" rx="3"/>
+    <rect x="180" y="108" width="24" height="12" rx="3"/>
+    <rect x="20" y="116" width="12" height="20" rx="3"/>
+    <rect x="44" y="116" width="32" height="12" rx="3"/>
+    <rect x="88" y="120" width="12" height="32" rx="3"/>
+    <rect x="112" y="128" width="28" height="12" rx="3"/>
+    <rect x="76" y="164" width="20" height="12" rx="3"/>
+    <rect x="108" y="156" width="12" height="44" rx="3"/>
+    <rect x="132" y="152" width="28" height="12" rx="3"/>
+    <rect x="172" y="152" width="12" height="12" rx="3"/>
+    <rect x="192" y="152" width="12" height="36" rx="3"/>
+    <rect x="128" y="180" width="48" height="12" rx="3"/>
+    <rect x="84" y="196" width="12" height="12" rx="3"/>
+    <rect x="152" y="200" width="32" height="8" rx="3"/>
+  </g>
+</svg>
