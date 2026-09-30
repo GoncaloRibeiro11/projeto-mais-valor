@@ -113,14 +113,20 @@ const demoAdminReferences = seedReferences.map((reference, index) => {
   const owner = owners[index % owners.length];
   return {
     ...reference,
+    databaseId: index + 1,
     ownerId: owner.userId,
     ownerName: owner.name,
     ownerEmail: owner.email,
     ownerRole: owner.role,
     ownerLeaderId: owner.leaderId,
+    assignedTo: null,
+    assigneeName: "",
+    assigneeEmail: "",
+    assigneeRole: "",
     clientPhone: `91${String(2000000 + index * 7131).padStart(7, "0")}`,
     postalCode: `${4000 + index * 37}-${String(120 + index).padStart(3, "0")}`,
-    notes: ""
+    notes: "",
+    managementNotes: ""
   };
 });
 
@@ -169,7 +175,8 @@ const state = {
   search: "",
   adminSearch: "",
   adminRoleFilter: "Todos",
-  adminStatusFilter: "Todos"
+  adminStatusFilter: "Todos",
+  selectedAdminReferenceId: null
 };
 
 let lastRenderedRoute = null;
@@ -550,28 +557,28 @@ function renderLineChart() {
     <svg viewBox="0 0 640 230" role="img" aria-label="Gráfico de referências e vendas validadas">
       <defs>
         <linearGradient id="areaFill" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stop-color="#0f8f72" stop-opacity="0.24"/>
-          <stop offset="100%" stop-color="#0f8f72" stop-opacity="0"/>
+          <stop offset="0%" stop-color="#119e01" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="#119e01" stop-opacity="0"/>
         </linearGradient>
       </defs>
-      <g stroke="#dfe8e3" stroke-width="1">
+      <g stroke="#dce7ea" stroke-width="1">
         <line x1="34" y1="38" x2="612" y2="38"/>
         <line x1="34" y1="88" x2="612" y2="88"/>
         <line x1="34" y1="138" x2="612" y2="138"/>
         <line x1="34" y1="188" x2="612" y2="188"/>
       </g>
-      ${areaPath(refs, "#0f8f72", "areaFill")}
-      ${polyline(refs, "#0f8f72")}
-      ${polyline(sales, "#5368d6")}
-      <g fill="#6f7c78" font-size="12" font-family="Inter, system-ui">
+      ${areaPath(refs, "#119e01", "areaFill")}
+      ${polyline(refs, "#119e01")}
+      ${polyline(sales, "#168fc5")}
+      <g fill="#69777c" font-size="12" font-family="Inter, system-ui">
         <text x="34" y="218">Semana 1</text>
         <text x="206" y="218">Semana 2</text>
         <text x="380" y="218">Semana 3</text>
         <text x="552" y="218">Hoje</text>
       </g>
       <g font-size="12" font-weight="800" font-family="Inter, system-ui">
-        <circle cx="434" cy="24" r="5" fill="#0f8f72"/><text x="446" y="29" fill="#31433f">Referências</text>
-        <circle cx="544" cy="24" r="5" fill="#5368d6"/><text x="556" y="29" fill="#31433f">Vendas</text>
+        <circle cx="434" cy="24" r="5" fill="#119e01"/><text x="446" y="29" fill="#3c3a3b">Referências</text>
+        <circle cx="544" cy="24" r="5" fill="#168fc5"/><text x="556" y="29" fill="#3c3a3b">Vendas</text>
       </g>
     </svg>
   `;
@@ -871,48 +878,118 @@ function filteredAdminReferences() {
   const search = state.adminSearch.trim().toLowerCase();
   return state.adminReferences.filter((reference) => {
     const matchesStatus = state.adminStatusFilter === "Todos" || reference.status === state.adminStatusFilter;
-    const haystack = `${reference.id} ${reference.ownerName} ${reference.ownerEmail} ${reference.client} ${reference.clientPhone} ${reference.postalCode} ${reference.product} ${reference.source}`.toLowerCase();
+    const haystack = `${reference.id} ${reference.ownerName} ${reference.ownerEmail} ${reference.assigneeName || ""} ${reference.assigneeEmail || ""} ${reference.client} ${reference.clientPhone} ${reference.postalCode} ${reference.product} ${reference.source}`.toLowerCase();
     return matchesStatus && (!search || haystack.includes(search));
   });
 }
 
-function renderAdminReferences() {
-  const rows = filteredAdminReferences();
+function selectedAdminReference() {
+  return state.adminReferences.find((reference) => String(reference.databaseId) === String(state.selectedAdminReferenceId)) || null;
+}
+
+function adminAssignablePartners() {
+  return state.adminPartners.filter((partner) => ["admin", "consultor", "leader"].includes(partner.role));
+}
+
+function renderAdminReferenceManager(reference) {
+  const assignees = adminAssignablePartners();
   return `
-    <section class="table-card admin-table">
+    <section class="form-card reference-manager" id="referenceManager">
       <div class="section-head">
         <div>
-          <span class="eyebrow">Pipeline global</span>
-          <h2>Todas as referências</h2>
-          <p>Visão operacional com parceiro responsável e dados de contacto do cliente.</p>
+          <span class="eyebrow">Gestão da referência</span>
+          <h2>${escapeHtml(reference.id)} · ${escapeHtml(reference.client)}</h2>
+          <p>Atribui o tratamento comercial, atualiza o estado e regista o próximo passo.</p>
         </div>
-        <span class="role-pill">${rows.length} resultados</span>
+        <button class="secondary-button" type="button" data-close-reference-manager>Fechar</button>
       </div>
-      <div class="filter-bar">
-        ${["Todos", ...statuses].map((status) => `<button class="chip ${state.adminStatusFilter === status ? "active" : ""}" type="button" data-admin-status-filter="${status}">${status}</button>`).join("")}
+
+      <div class="reference-summary-grid">
+        <div><span>Referenciada por</span><strong>${escapeHtml(reference.ownerName)}</strong><small>${roleLabel(reference.ownerRole)}</small></div>
+        <div><span>Contacto</span><strong>${escapeHtml(reference.clientPhone)}</strong><small>${escapeHtml(reference.postalCode)}</small></div>
+        <div><span>Produto</span><strong>${escapeHtml(reference.product)}</strong><small>${escapeHtml(reference.source)}</small></div>
+        <div><span>Entrada</span><strong>${formatDate(reference.date)}</strong><small>${escapeHtml(reference.status)}</small></div>
       </div>
-      <input class="search-input" id="adminSearch" value="${escapeAttribute(state.adminSearch)}" placeholder="Pesquisar referência, parceiro, cliente, telefone ou produto" aria-label="Pesquisar referências globais">
-      <div class="table-wrap">
-        ${rows.length ? renderAdminReferenceTable(rows, true) : renderAdminEmpty("Nenhuma referência corresponde aos filtros.")}
-      </div>
+
+      ${reference.notes ? `<div class="reference-origin-note"><span>Notas enviadas pelo parceiro</span><p>${escapeHtml(reference.notes)}</p></div>` : ""}
+
+      <form id="adminReferenceForm">
+        <input type="hidden" name="referenceId" value="${escapeAttribute(reference.databaseId)}">
+        <div class="form-grid">
+          <div class="field">
+            <label for="adminReferenceAssignee">Responsável comercial</label>
+            <select id="adminReferenceAssignee" name="assignedTo">
+              <option value="">Sem responsável atribuído</option>
+              ${assignees.map((partner) => `
+                <option value="${escapeAttribute(partner.userId)}" ${reference.assignedTo === partner.userId ? "selected" : ""}>${escapeHtml(partner.name)} · ${roleLabel(partner.role)}</option>
+              `).join("")}
+            </select>
+            <small>Admin, Consultor ou Leader podem receber o tratamento.</small>
+          </div>
+          <div class="field">
+            <label for="adminReferenceStatus">Estado</label>
+            <select id="adminReferenceStatus" name="status" required>
+              ${statuses.map((status) => `<option value="${escapeAttribute(status)}" ${reference.status === status ? "selected" : ""}>${escapeHtml(status)}</option>`).join("")}
+            </select>
+            <small>A validação da venda continua sob controlo do Admin.</small>
+          </div>
+          <div class="field full">
+            <label for="adminReferenceNotes">Notas operacionais</label>
+            <textarea id="adminReferenceNotes" name="managementNotes" maxlength="2000" placeholder="Ex.: Contactar novamente amanhã depois das 18h.">${escapeHtml(reference.managementNotes || "")}</textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="primary-button" type="submit">${icon("check")}Guardar alterações</button>
+          <button class="secondary-button" type="button" data-close-reference-manager>Cancelar</button>
+        </div>
+      </form>
     </section>
+  `;
+}
+
+function renderAdminReferences() {
+  const rows = filteredAdminReferences();
+  const selectedReference = selectedAdminReference();
+  return `
+    <div class="stack">
+      ${selectedReference ? renderAdminReferenceManager(selectedReference) : ""}
+      <section class="table-card admin-table">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Pipeline global</span>
+            <h2>Todas as referências</h2>
+            <p>Consulta quem referenciou, atribui um responsável comercial e acompanha o trabalho.</p>
+          </div>
+          <span class="role-pill">${rows.length} resultados</span>
+        </div>
+        <div class="filter-bar">
+          ${["Todos", ...statuses].map((status) => `<button class="chip ${state.adminStatusFilter === status ? "active" : ""}" type="button" data-admin-status-filter="${status}">${status}</button>`).join("")}
+        </div>
+        <input class="search-input" id="adminSearch" value="${escapeAttribute(state.adminSearch)}" placeholder="Pesquisar referência, parceiro, responsável, cliente, telefone ou produto" aria-label="Pesquisar referências globais">
+        <div class="table-wrap">
+          ${rows.length ? renderAdminReferenceTable(rows, true) : renderAdminEmpty("Nenhuma referência corresponde aos filtros.")}
+        </div>
+      </section>
+    </div>
   `;
 }
 
 function renderAdminReferenceTable(rows, showContact) {
   return `
     <table>
-      <thead><tr><th>Referência</th><th>Parceiro</th><th>Cliente</th>${showContact ? "<th>Contacto</th>" : ""}<th>Produto</th><th>Estado</th><th>Data</th><th>Comissão total</th></tr></thead>
+      <thead><tr><th>Referência</th><th>Referenciada por</th><th>Responsável</th><th>Cliente</th>${showContact ? "<th>Contacto</th>" : ""}<th>Produto</th><th>Estado</th><th>Data</th><th>Comissão</th><th>Ação</th></tr></thead>
       <tbody>${rows.map((reference) => `
         <tr>
           <td><strong>${escapeHtml(reference.id)}</strong></td>
           <td><strong>${escapeHtml(reference.ownerName)}</strong><span class="cell-subtitle">${roleLabel(reference.ownerRole)}</span></td>
+          <td>${reference.assigneeName ? `<strong>${escapeHtml(reference.assigneeName)}</strong><span class="cell-subtitle">${roleLabel(reference.assigneeRole)}</span>` : `<span class="unassigned-label">Por atribuir</span>`}</td>
           <td>${escapeHtml(reference.client)}</td>
           ${showContact ? `<td><strong>${escapeHtml(reference.clientPhone)}</strong><span class="cell-subtitle">${escapeHtml(reference.postalCode)}</span></td>` : ""}
           <td>${productPill(reference.product)}</td>
           <td>${statusPill(reference.status)}</td>
           <td>${formatDate(reference.date)}</td>
           <td><strong>${adminReferenceCommission(reference) ? money.format(adminReferenceCommission(reference)) : "-"}</strong></td>
+          <td><button class="secondary-button table-action-button" type="button" data-manage-reference="${escapeAttribute(reference.databaseId)}">Gerir</button></td>
         </tr>
       `).join("")}</tbody>
     </table>
@@ -1532,6 +1609,11 @@ function bindViewEvents() {
   if (invitePartnerForm) {
     invitePartnerForm.addEventListener("submit", handlePartnerInvite);
   }
+
+  const adminReferenceForm = document.querySelector("#adminReferenceForm");
+  if (adminReferenceForm) {
+    adminReferenceForm.addEventListener("submit", handleAdminReferenceUpdate);
+  }
 }
 
 async function handlePartnerInvite(event) {
@@ -1563,6 +1645,58 @@ async function handlePartnerInvite(event) {
     showToast(friendlyError(error));
     button.disabled = false;
     button.innerHTML = `${icon("plus")}Enviar convite`;
+  }
+}
+
+async function handleAdminReferenceUpdate(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector('[type="submit"]');
+  const formData = new FormData(form);
+  const referenceId = Number(formData.get("referenceId"));
+  const assignedTo = String(formData.get("assignedTo") || "") || null;
+  const status = String(formData.get("status") || "Recebida");
+  const managementNotes = String(formData.get("managementNotes") || "").trim();
+
+  if (state.profile !== "admin") {
+    showToast("Esta operação está disponível apenas para o Admin.");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "A guardar...";
+
+  try {
+    if (state.mode === "cloud") {
+      await window.partnerBackend.updateAdminReference({
+        referenceId,
+        assignedTo,
+        status,
+        managementNotes
+      });
+      const adminData = await window.partnerBackend.loadAdminData();
+      state.adminPartners = adminData.partners;
+      state.adminReferences = adminData.references;
+    } else {
+      const reference = state.adminReferences.find((item) => Number(item.databaseId) === referenceId);
+      const assignee = state.adminPartners.find((partner) => partner.userId === assignedTo);
+      if (reference) {
+        reference.assignedTo = assignedTo;
+        reference.assigneeName = assignee?.name || "";
+        reference.assigneeEmail = assignee?.email || "";
+        reference.assigneeRole = assignee?.role || "";
+        reference.status = status;
+        reference.managementNotes = managementNotes;
+      }
+    }
+
+    state.selectedAdminReferenceId = referenceId;
+    render();
+    showToast("Referência atualizada com sucesso.");
+  } catch (error) {
+    showToast(friendlyError(error));
+    button.disabled = false;
+    button.innerHTML = `${icon("check")}Guardar alterações`;
   }
 }
 
@@ -1720,6 +1854,7 @@ async function enterCloudMode(session) {
   state.adminSearch = "";
   state.adminRoleFilter = "Todos";
   state.adminStatusFilter = "Todos";
+  state.selectedAdminReferenceId = null;
   const requestedRoute = window.location.hash.replace("#", "");
   if (!activeNavItems().some((item) => item.id === requestedRoute)) {
     window.history.replaceState(null, "", `#${activeNavItems()[0].id}`);
@@ -1793,6 +1928,7 @@ async function handleSignOut(button) {
     state.teamMembers = [];
     state.adminPartners = [];
     state.adminReferences = [];
+    state.selectedAdminReferenceId = null;
     state.mode = "demo";
     showAuthScreen("Sessão terminada com segurança.");
   } catch (error) {
@@ -1871,6 +2007,25 @@ document.addEventListener("click", (event) => {
   const adminStatusFilter = event.target.closest("[data-admin-status-filter]");
   if (adminStatusFilter) {
     state.adminStatusFilter = adminStatusFilter.dataset.adminStatusFilter;
+    render();
+    return;
+  }
+
+  const manageReferenceButton = event.target.closest("[data-manage-reference]");
+  if (manageReferenceButton) {
+    state.selectedAdminReferenceId = manageReferenceButton.dataset.manageReference;
+    if (state.route !== "admin-referencias") {
+      navigate("admin-referencias");
+    } else {
+      render();
+    }
+    document.querySelector("#referenceManager")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+
+  const closeReferenceManagerButton = event.target.closest("[data-close-reference-manager]");
+  if (closeReferenceManagerButton) {
+    state.selectedAdminReferenceId = null;
     render();
     return;
   }

@@ -193,6 +193,10 @@
         ownerEmail: reference.owner_email || "",
         ownerRole: reference.owner_role,
         ownerLeaderId: reference.owner_leader_id,
+        assignedTo: reference.assigned_to,
+        assigneeName: reference.assignee_name || "",
+        assigneeEmail: reference.assignee_email || "",
+        assigneeRole: reference.assignee_role || "",
         client: reference.client_name,
         clientPhone: reference.client_phone,
         postalCode: reference.postal_code,
@@ -200,9 +204,20 @@
         status: reference.status,
         date: reference.created_at.slice(0, 10),
         source: reference.source,
-        notes: reference.notes || ""
+        notes: reference.notes || "",
+        managementNotes: reference.management_notes || ""
       }))
     };
+  }
+
+  async function updateAdminReference(reference) {
+    const { error } = await getClient().rpc("update_admin_reference", {
+      p_reference_id: Number(reference.referenceId),
+      p_assigned_to: reference.assignedTo || null,
+      p_status: reference.status,
+      p_management_notes: reference.managementNotes || null
+    });
+    throwIfError(error);
   }
 
   window.partnerBackend = {
@@ -216,6 +231,7 @@
     loadReferences,
     createReference,
     loadTeam,
-    loadAdminData
+    loadAdminData,
+    updateAdminReference
   };
 })();

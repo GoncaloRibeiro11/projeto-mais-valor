@@ -1,20 +1,23 @@
 :root {
-  --ink: #10231f;
-  --ink-soft: #31433f;
-  --muted: #6f7c78;
-  --line: #dfe8e3;
+  --ink: #1a1819;
+  --ink-soft: #3c3a3b;
+  --muted: #69777c;
+  --line: #dce7ea;
   --panel: #ffffff;
-  --panel-soft: #f7fbf8;
-  --canvas: #edf4f0;
-  --primary: #0f8f72;
-  --primary-dark: #0a6d58;
-  --teal-soft: #dff6ef;
-  --amber: #f1b35f;
-  --amber-soft: #fff2dc;
-  --indigo: #5368d6;
-  --indigo-soft: #e8ebff;
+  --panel-soft: #f5fafc;
+  --canvas: #edf5f7;
+  --primary: #119e01;
+  --primary-dark: #0b7201;
+  --teal-soft: #e7f7e5;
+  --brand-blue: #47c4fa;
+  --brand-blue-dark: #168fc5;
+  --brand-blue-soft: #e5f7ff;
+  --amber: #e7a33a;
+  --amber-soft: #fff3df;
+  --indigo: #168fc5;
+  --indigo-soft: #e5f7ff;
   --danger: #c75454;
-  --shadow: 0 18px 48px rgba(24, 48, 42, 0.1);
+  --shadow: 0 18px 48px rgba(24, 50, 59, 0.1);
   --radius: 8px;
   color-scheme: light;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -33,7 +36,7 @@ body {
   margin: 0;
   color: var(--ink);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(237, 244, 240, 0.9)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(237, 245, 247, 0.92)),
     var(--canvas);
 }
 
@@ -86,15 +89,28 @@ svg {
   padding: clamp(28px, 5vw, 72px);
   color: #ffffff;
   background: var(--ink);
+  border-top: 6px solid var(--brand-blue);
 }
 
 .auth-intro .brand {
   align-self: flex-start;
+  width: min(100%, 330px);
+  padding: 14px 16px 12px;
+  border-radius: 8px;
+  color: var(--ink);
+  background: #ffffff;
+}
+
+.auth-intro .brand small {
+  color: var(--muted);
+}
+
+.auth-intro .brand-logo {
+  width: 285px;
 }
 
 .auth-intro .eyebrow,
-.auth-intro > small,
-.auth-intro .brand small {
+.auth-intro > small {
   color: rgba(255, 255, 255, 0.68);
 }
 
@@ -198,27 +214,25 @@ svg {
   gap: 22px;
   height: 100vh;
   padding: 22px 18px;
-  color: #f6fbf8;
-  background: var(--ink);
+  color: var(--ink);
+  background: #ffffff;
+  border-right: 1px solid var(--line);
 }
 
 .brand {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
   color: inherit;
   text-decoration: none;
 }
 
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 8px;
-  color: var(--ink);
-  background: var(--amber);
-  font-weight: 900;
+.brand-logo {
+  width: 178px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 .brand strong {
@@ -228,9 +242,9 @@ svg {
 
 .brand small {
   display: block;
-  margin-top: 2px;
-  color: rgba(246, 251, 248, 0.68);
+  color: var(--muted);
   font-size: 12px;
+  font-weight: 700;
 }
 
 .side-nav,
@@ -247,7 +261,7 @@ svg {
   min-height: 42px;
   padding: 10px 12px;
   border-radius: 8px;
-  color: rgba(246, 251, 248, 0.76);
+  color: var(--ink-soft);
   text-decoration: none;
   transition: background 150ms ease, color 150ms ease;
 }
@@ -268,20 +282,20 @@ svg {
 
 .nav-link:hover,
 .nav-link.active {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--ink);
+  background: var(--brand-blue-soft);
 }
 
 .nav-link.active {
-  box-shadow: inset 3px 0 0 var(--amber);
+  box-shadow: inset 3px 0 0 var(--brand-blue);
 }
 
 .sidebar-card {
   margin-top: auto;
   padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid #bfe8fa;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--brand-blue-soft);
 }
 
 .sidebar-card strong {
@@ -342,7 +356,7 @@ svg {
   height: 30px;
   border-radius: 50%;
   color: var(--ink);
-  background: var(--amber);
+  background: var(--brand-blue);
   font-size: 12px;
   font-weight: 900;
 }
@@ -430,7 +444,7 @@ svg {
   padding: 0 15px;
   color: #ffffff;
   background: var(--primary);
-  box-shadow: 0 10px 24px rgba(15, 143, 114, 0.24);
+  box-shadow: 0 10px 24px rgba(17, 158, 1, 0.22);
 }
 
 .primary-button:hover {
@@ -500,6 +514,7 @@ svg {
   border-radius: 8px;
   color: #ffffff;
   background: var(--ink);
+  border-top: 4px solid var(--brand-blue);
   box-shadow: var(--shadow);
   overflow: hidden;
 }
@@ -883,7 +898,20 @@ td {
 }
 
 .admin-table table {
-  min-width: 980px;
+  min-width: 1260px;
+}
+
+.table-action-button {
+  min-height: 32px;
+  padding: 0 11px;
+  white-space: nowrap;
+}
+
+.unassigned-label {
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
 }
 
 .admin-dashboard-grid {
@@ -1046,6 +1074,60 @@ tr:last-child td {
 
 .admin-invite-card {
   border-left: 4px solid var(--primary);
+}
+
+.reference-manager {
+  border-left: 4px solid var(--primary);
+}
+
+.reference-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 18px -18px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-soft);
+}
+
+.reference-summary-grid div {
+  min-width: 0;
+}
+
+.reference-summary-grid span,
+.reference-origin-note span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.reference-summary-grid strong,
+.reference-summary-grid small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reference-summary-grid small {
+  margin-top: 3px;
+  color: var(--muted);
+}
+
+.reference-origin-note {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.reference-origin-note p {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.55;
 }
 
 .invite-partner-form {
@@ -1242,13 +1324,13 @@ tr:last-child td {
     gap: 12px;
     min-height: 64px;
     padding: 10px 16px;
-    color: #ffffff;
-    background: var(--ink);
+    color: var(--ink);
+    background: #ffffff;
+    border-bottom: 1px solid var(--line);
   }
 
-  .brand.compact .brand-mark {
-    width: 36px;
-    height: 36px;
+  .brand.compact .brand-logo {
+    width: 134px;
   }
 
   .mobile-menu {
@@ -1262,8 +1344,8 @@ tr:last-child td {
     min-height: 38px;
     padding: 0 12px;
     border-radius: 8px;
-    color: var(--ink);
-    background: #ffffff;
+    color: #ffffff;
+    background: var(--ink);
     font-weight: 900;
     list-style: none;
   }
@@ -1279,7 +1361,8 @@ tr:last-child td {
     width: min(285px, calc(100vw - 32px));
     padding: 10px;
     border-radius: 8px;
-    background: var(--ink);
+    border: 1px solid var(--line);
+    background: #ffffff;
     box-shadow: var(--shadow);
   }
 
@@ -1321,6 +1404,7 @@ tr:last-child td {
   .split,
   .form-grid,
   .invite-form-grid,
+  .reference-summary-grid,
   .profile-grid,
   .module-grid,
   .material-grid,
@@ -1343,6 +1427,13 @@ tr:last-child td {
 
   .option-grid {
     grid-template-columns: 1fr;
+  }
+
+  .reference-summary-grid {
+    margin-right: -15px;
+    margin-left: -15px;
+    padding-right: 15px;
+    padding-left: 15px;
   }
 
   .mobile-nav {
